@@ -71,7 +71,7 @@ describe('useFormAuthority', () => {
             (screen.getByTestId('form') as HTMLFormElement).submit();
         });
 
-        const errorMessage = screen.getByTestId('username-error')
+        const errorMessage = screen.getByTestId('username-error');
         expect(errorMessage).not.toBeNull();
         expect(errorMessage).toHaveTextContent('invalid username');
 

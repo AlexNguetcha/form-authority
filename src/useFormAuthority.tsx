@@ -21,18 +21,18 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
     const [values, setValues] = useState<JsonType<string | number>>(options.initialValues)
 
     const renderError = (name: string): JSX.Element => {
-        if (!errors.name) return;
+        if (!errors[name]) return;
 
         if (!options.errorRender) {
-            return FormAuthorityError(name, errors.name)
+            return FormAuthorityError(name, errors[name])
         }
 
-        return options.errorRender(name, errors.name)
+        return options.errorRender(name, errors[name])
     }
 
     const applyValidator = (name: string, value: string | number): void => {
         if (typeof options.validator === 'function') {
-            const error = options.validator(name, value)
+            const error = options.validator(name, value);
             if (error !== null) {
                 setErrors((elements) => {
                     elements[name] = error;
@@ -42,26 +42,19 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
         }
     }
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-
+    const handleValidate = (): void => {
         Object.keys(values).forEach(key => applyValidator(key, values[key]))
-        console.log(errors);
-        
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
 
-        const valuesElements = Object.assign(values);
-        valuesElements[e.target.name] = e.target.value;
-
-        setValues(valuesElements)
+        setValues({ ...values, [e.target.name]: e.target.value })
 
         if (options.renderErrorOnChange && e.target.value && e.target.value.length > 0)
             applyValidator(e.target.name, e.target.value)
     }
 
-    return { values, errors, setValues, setErrors, renderError, handleSubmit, handleChange }
+    return { values, errors, setValues, setErrors, renderError, handleValidate, handleChange }
 }
 
 export default useFormAuthority;
