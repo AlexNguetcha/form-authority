@@ -29,9 +29,6 @@
     "url": "https://github.com/alexnguetcha/form-authority/issues"
   },
   "homepage": "https://github.com/alexnguetcha/form-authority#readme",
-  "peerDependencies": {
-    "react": "^18.2.0"
-  },
   "devDependencies": {
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
