@@ -17,17 +17,17 @@ export interface FormAuthorityOptions {
 
 const useFormAuthority = (options: FormAuthorityOptions) => {
 
-    const [errors, setErrors] = useState<JsonType<string>>({})
-    const [values, setValues] = useState<JsonType<string | number>>(options.initialValues)
+    const [errors, setErrors] = useState<JsonType<string>>({});
+    const [values, setValues] = useState<JsonType<string | number>>(options.initialValues);
 
     const renderError = (name: string): JSX.Element => {
         if (!errors[name]) return;
 
         if (!options.errorRender) {
-            return FormAuthorityError(name, errors[name])
+            return FormAuthorityError(name, errors[name]);
         }
 
-        return options.errorRender(name, errors[name])
+        return options.errorRender(name, errors[name]);
     }
 
     const applyValidator = (name: string, value: string | number): void => {

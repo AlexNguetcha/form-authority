@@ -55,9 +55,9 @@ describe('useFormAuthority', () => {
             options.errorRender = (name, error) => <span data-testid={`${name}-error`}>{error}</span>;
             options.validator = (name, value) => 'invalid username';
 
-            const { values, errors, renderError, handleChange, handleSubmit } = useFormAuthority(options)
+            const { values, errors, renderError, handleChange, handleValidate } = useFormAuthority(options)
 
-            return <form data-testid='form' onSubmit={handleSubmit}>
+            return <form data-testid='form' onSubmit={handleValidate}>
                 <input data-error={errors.username} data-testid='username' name='username' type={'text'} value={values.username} onChange={handleChange} />
                 {errors.username && <span>{errors.username}</span>}
             </form>
