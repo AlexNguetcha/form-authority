@@ -1,13 +1,14 @@
 import { ChangeEvent, FormEvent } from 'react';
 import { LegacyRef, useState } from 'react'
 import { FormAuthorityError } from './component/FormAuthorityError';
+import validator from 'validator';
 
 
 export type JsonType<T> = Record<string, T>;
 
 export interface FormAuthorityOptions {
     initialValues: JsonType<string | number>
-    validator: ((name: string, value: string | number) => string | null) | string[],
+    validator: ((name: string, value: string | number) => string | null) | JsonType<string>,
     errorRender?: (name: string, error: string) => JSX.Element,
     formRef?: LegacyRef<HTMLFormElement>,
     autoRenderError: boolean,
@@ -39,7 +40,65 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
                     return elements;
                 })
             }
+        } else {
+            Object.entries(options.validator).forEach(([fieldName, fieldRules]) => {
+                const error = applyValidatorRules(fieldName, value as string, fieldRules.split('|'));
+                if (error !== null) {
+                    setErrors((elements) => {
+                        elements[fieldName] = error;
+                        return elements;
+                    })
+                }
+
+            })
         }
+    }
+
+    const applyValidatorRules = (fieldName: string, fieldValue: string, rules: string[]): string | null => {
+        
+        let errorMessage: string | null;
+        rules.forEach((rule) => {
+
+            const [ruleName, ...ruleParams] = rule.split(':');
+
+            switch (ruleName) {
+                case 'required':
+                    if (validator.isEmpty(`${fieldValue}`)) {
+                        errorMessage = `${fieldName} is required`;
+                    }
+                    break;
+                case 'min':
+                    if (!validator.isLength(`${fieldValue}`, { min: Number(ruleParams[0]) })) {
+                        errorMessage = `${fieldName} must be at least ${ruleParams[0]} characters long`;
+                    }
+                    break;
+                case 'max':
+                    if (!validator.isLength(`${fieldValue}`, { max: Number(ruleParams[0]) })) {
+                        errorMessage = `${fieldName} must be at most ${ruleParams[0]} characters long`;
+                    }
+                    break;
+                case 'url':
+                    if (!validator.isURL(`${fieldValue}`)) {
+                        errorMessage = `${fieldName} must be a valid URL`;
+                    }
+                    break;
+                case 'regex':
+                    if (!RegExp(ruleParams[0]).test(fieldValue)) {
+                        errorMessage = `${fieldName} is not valid`;
+                    }
+                    break;
+                case 'sometimes':
+                    if (validator.isEmpty(`${fieldValue}`)) {
+                        return;
+                    }
+                    break;
+
+                default:
+                    throw new Error(`Unknown validation rule: ${ruleName}`);
+            }
+        })
+        
+        return errorMessage;
     }
 
     const handleValidate = (): void => {
