@@ -53,6 +53,24 @@ describe('useFormAuthority', () => {
         expect(result.current.errors.name).toBe('name is required');
     });
 
+    it('should render default error message for a specific form field', () => {
+        const { result } = renderHook(() => useFormAuthority(options));
+        act(() => {
+            result.current.handleChange({
+                target: {
+                    name: 'name',
+                    value: ''
+                }
+            } as ChangeEvent<HTMLInputElement>);
+            
+            result.current.handleValidate();
+        });
+
+        const error = result.current.renderError('name');
+
+        expect(error.props['className']).toBe('form-authority-error form-authority-error__name');
+    })
+
     it('should render a custom error message for a specific form field', () => {
         options.errorRender = (name, error) => (
             <div data-testid="custom-error">
