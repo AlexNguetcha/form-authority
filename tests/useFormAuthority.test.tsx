@@ -1,84 +1,80 @@
 import { screen, fireEvent, render, renderHook, RenderResult, waitFor, cleanup } from '@testing-library/react';
-import React, { useEffect, useRef } from 'react';
+import React, { ChangeEvent, useEffect, useRef } from 'react';
 import { act } from 'react-dom/test-utils';
 import useFormAuthority, { FormAuthorityOptions } from '../src';
-import { JsonType } from '../src/useFormAuthority';
-
 
 describe('useFormAuthority', () => {
-    let initialValues = {
-        name: 'John Doe',
-        email: 'johndoe@gmail.com'
-    };
-
-    let options: FormAuthorityOptions = {
-        initialValues,
-        validator: function (name, value) {
-            if (name === 'username') {
-                if (!/^[a-z]{3,}$/.test(value.toString().toLowerCase()))
-                    return 'invalid username'
-            }
-            return null;
-        },
-        autoRenderError: false,
-        renderErrorOnChange: false
-    };
+    let options: FormAuthorityOptions;
 
     beforeEach(() => {
+        options = {
+            initialValues: {
+                name: '',
+                age: ''
+            },
+            validator: {
+                name: 'required',
+                age: 'required|min:1|max:120'
+            },
+            autoRenderError: false,
+            renderErrorOnChange: true
+        };
     });
 
-    afterEach(cleanup)
-
-    test('formAuthority value change on ChangeEvent', async () => {
-        const TestComponent = () => {
-            const { values, handleChange } = useFormAuthority(options)
-
-            return <form>
-                <input data-testid='username' name='username' type={'text'} value={values.username} onChange={handleChange} />
-            </form>
-        }
-
-        render(<TestComponent />);
-
-        const userNameInput = (screen.getByTestId('username') as HTMLInputElement);
-
-        await waitFor(() => {
-            fireEvent.change(userNameInput, { target: { value: 'Alex', name: 'name' } });
-        });
-
-        expect(userNameInput.value).toBe('Alex');
-    });
-
-    test('formAuthority renders error properly', async () => {
-        const TestComponent = () => {
-            options.initialValues = { username: '123' };
-            options.errorRender = (name, error) => <span data-testid={`${name}-error`}>{error}</span>;
-            options.validator = (name, value) => 'invalid username';
-
-            const { values, errors, renderError, handleChange, handleValidate } = useFormAuthority(options)
-
-            return <form data-testid='form' onSubmit={handleValidate}>
-                <input data-error={errors.username} data-testid='username' name='username' type={'text'} value={values.username} onChange={handleChange} />
-                {errors.username && <span>{errors.username}</span>}
-            </form>
-        }
-
-        render(<TestComponent />);
-
-        expect(screen.queryByTestId('username-error')).toBeNull();
+    it('should update the form field values', () => {
+        const { result } = renderHook(() => useFormAuthority(options));
 
         act(() => {
-            (screen.getByTestId('form') as HTMLFormElement).submit();
+            result.current.handleChange({
+                target: {
+                    name: 'name',
+                    value: 'John Doe'
+                }
+            } as ChangeEvent<HTMLInputElement>);
         });
 
-        const errorMessage = screen.getByTestId('username-error');
-        expect(errorMessage).not.toBeNull();
-        expect(errorMessage).toHaveTextContent('invalid username');
-
-
+        expect(result.current.values.name).toBe('John Doe');
     });
 
+    it('should validate the form fields and update the error messages', () => {
+        const { result } = renderHook(() => useFormAuthority(options));
 
+        act(() => {
+            result.current.handleChange({
+                target: {
+                    name: 'name',
+                    value: ''
+                }
+            } as ChangeEvent<HTMLInputElement>);
 
+            result.current.handleValidate();
+        });
 
-})
+        expect(result.current.errors.name).toBe('name is required');
+    });
+
+    it('should render a custom error message for a specific form field', () => {
+        options.errorRender = (name, error) => (
+            <div data-testid="custom-error">
+                {name}: {error}
+            </div>
+        );
+
+        const { result } = renderHook(() => useFormAuthority(options));
+
+        act(() => {
+            result.current.handleChange({
+                target: {
+                    name: 'age',
+                    value: '0'
+                }
+            } as ChangeEvent<HTMLInputElement>);
+
+            result.current.handleValidate();
+        });
+
+        const error = result.current.renderError('age');
+
+        expect(error.props['data-testid']).toBe('custom-error');
+    });
+});

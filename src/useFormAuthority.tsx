@@ -55,8 +55,8 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
     }
 
     const applyValidatorRules = (fieldName: string, fieldValue: string, rules: string[]): string | null => {
-        
-        let errorMessage: string | null;
+
+        let errorMessage: string | null = null;
         rules.forEach((rule) => {
 
             const [ruleName, ...ruleParams] = rule.split(':');
@@ -97,7 +97,7 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
                     throw new Error(`Unknown validation rule: ${ruleName}`);
             }
         })
-        
+
         return errorMessage;
     }
 
