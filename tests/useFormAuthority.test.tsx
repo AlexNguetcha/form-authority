@@ -48,8 +48,7 @@ describe('useFormAuthority', () => {
 
             result.current.handleValidate();
         });
-result.current.values.
-        expect(result.current.errors.name).toBe('name is required');
+        expect(result.current.errors.name).toBe('This field is required');
     });
 
     it('should render default error message for a specific form field', () => {
@@ -61,7 +60,7 @@ result.current.values.
                     value: ''
                 }
             } as ChangeEvent<HTMLInputElement>);
-            
+
             result.current.handleValidate();
         });
 

@@ -68,7 +68,10 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
             if (!validatorFn) {
                 throw new Error(`Unknown validation rule: ${ruleName}`);
             }
-            const error = validatorFn(fieldName, fieldValue, errorMessage = options?.customErrorsMessages[ruleName], ...ruleParams,);
+            if (options.customErrorsMessages) {
+                const error = validatorFn(fieldName, fieldValue, errorMessage = options.customErrorsMessages[ruleName], ...ruleParams,);
+            }
+            const error = validatorFn(fieldName, fieldValue, ...ruleParams,);
             if (error) {
                 errorMessage = error;
             }
