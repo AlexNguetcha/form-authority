@@ -43,18 +43,18 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
 
 
     const applyValidator = (name: string, value: string | number, forSubmission: boolean = false): void => {
-        const isReadyForValidation = (error: string | null) =>
+        const shouldRenderError = (error: string | null) =>
             forSubmission || (error !== null && (options.renderErrorOnChange || blurredFields[name]));
 
         if (typeof options.validator === 'function') {
             const error = options.validator(name, value);
-            if (isReadyForValidation(error)) {
+            if (shouldRenderError(error)) {
                 applyError(name, error);
             }
         } else {
             Object.entries(options.validator).forEach(([fieldName, fieldRules]) => {
                 const error = applyValidatorRules(fieldName, value as string, fieldRules.split('|'));
-                if (isReadyForValidation(error)) {
+                if (shouldRenderError(error)) {
                     applyError(fieldName, error);
                 }
             })
