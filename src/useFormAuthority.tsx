@@ -1,5 +1,4 @@
-import { ChangeEvent, FocusEvent } from 'react';
-import { useState } from 'react'
+import { ChangeEvent, FocusEvent, useState } from 'react';
 import { FormAuthorityError } from './component/FormAuthorityError';
 import { ValidationRules } from './utils/validationRules';
 
