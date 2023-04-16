@@ -10,8 +10,8 @@ export interface FormAuthorityOptions {
     initialValues: JsonType<string | number>
     validator: ((name: string, value: string | number) => string | null) | JsonType<string>,
     errorRender?: (name: string, error: string) => JSX.Element,
-    renderErrorOnBlur: boolean,
-    renderErrorOnChange: boolean
+    renderErrorOnBlur?: boolean,
+    renderErrorOnChange?: boolean
 }
 
 

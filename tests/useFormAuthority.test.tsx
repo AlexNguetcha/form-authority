@@ -16,7 +16,6 @@ describe('useFormAuthority', () => {
                 name: 'required',
                 age: 'required|min:1|max:120'
             },
-            autoRenderError: false,
             renderErrorOnChange: true
         };
     });
