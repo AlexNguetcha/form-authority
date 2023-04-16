@@ -48,7 +48,7 @@ describe('useFormAuthority', () => {
 
             result.current.handleValidate();
         });
-
+result.current.values.
         expect(result.current.errors.name).toBe('name is required');
     });
 

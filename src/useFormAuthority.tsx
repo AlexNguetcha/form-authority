@@ -18,18 +18,14 @@ export interface FormAuthorityOptions {
 const useFormAuthority = (options: FormAuthorityOptions) => {
 
     const [errors, setErrors] = useState<JsonType<string>>({});
-    const [values, setValues] = useState<JsonType<string | number>>(options.initialValues);
+    const [values, setValues] = useState<typeof options.initialValues>(options.initialValues);
     const [blurredFields, setBlurredFields] = useState<JsonType<boolean>>({});
 
 
     const renderError = (name: string): JSX.Element => {
-        if (!errors[name]) return;
-
-        if (!options.errorRender) {
-            return FormAuthorityError(name, errors[name]);
+        if (errors[name]) {
+            return options.errorRender ? options.errorRender(name, errors[name]) : FormAuthorityError(name, errors[name]);
         }
-
-        return options.errorRender(name, errors[name]);
     }
 
     const applyError = (fieldName: string, error: string | null): void => {
