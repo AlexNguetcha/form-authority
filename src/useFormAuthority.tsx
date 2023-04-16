@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react';
-import { LegacyRef, useState } from 'react'
+import { ChangeEvent, FocusEvent } from 'react';
+import { useState } from 'react'
 import { FormAuthorityError } from './component/FormAuthorityError';
 import validator from 'validator';
 
@@ -10,8 +10,7 @@ export interface FormAuthorityOptions {
     initialValues: JsonType<string | number>
     validator: ((name: string, value: string | number) => string | null) | JsonType<string>,
     errorRender?: (name: string, error: string) => JSX.Element,
-    formRef?: LegacyRef<HTMLFormElement>,
-    autoRenderError: boolean,
+    renderErrorOnBlur: boolean,
     renderErrorOnChange: boolean
 }
 
@@ -20,6 +19,8 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
 
     const [errors, setErrors] = useState<JsonType<string>>({});
     const [values, setValues] = useState<JsonType<string | number>>(options.initialValues);
+    const [blurredFields, setBlurredFields] = useState<JsonType<boolean>>({});
+
 
     const renderError = (name: string): JSX.Element => {
         if (!errors[name]) return;
@@ -31,28 +32,35 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
         return options.errorRender(name, errors[name]);
     }
 
-    const applyValidator = (name: string, value: string | number): void => {
+    const applyError = (fieldName: string, error: string | null): void => {
+        if (error !== null && (options.renderErrorOnChange || blurredFields[fieldName])) {
+            setErrors((elements) => {
+                elements[fieldName] = error;
+                return elements;
+            })
+        }
+    }
+
+
+    const applyValidator = (name: string, value: string | number, forSubmission: boolean = false): void => {
+        const isReadyForValidation = (error: string | null) =>
+            forSubmission || (error !== null && (options.renderErrorOnChange || blurredFields[name]));
+
         if (typeof options.validator === 'function') {
             const error = options.validator(name, value);
-            if (error !== null) {
-                setErrors((elements) => {
-                    elements[name] = error;
-                    return elements;
-                })
+            if (isReadyForValidation(error)) {
+                applyError(name, error);
             }
         } else {
             Object.entries(options.validator).forEach(([fieldName, fieldRules]) => {
                 const error = applyValidatorRules(fieldName, value as string, fieldRules.split('|'));
-                if (error !== null) {
-                    setErrors((elements) => {
-                        elements[fieldName] = error;
-                        return elements;
-                    })
+                if (isReadyForValidation(error)) {
+                    applyError(fieldName, error);
                 }
-
             })
         }
     }
+
 
     const applyValidatorRules = (fieldName: string, fieldValue: string, rules: string[]): string | null => {
 
@@ -102,7 +110,7 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
     }
 
     const handleValidate = (): void => {
-        Object.keys(values).forEach(key => applyValidator(key, values[key]))
+        Object.keys(values).forEach(key => applyValidator(key, values[key], true));
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -111,7 +119,16 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
 
         if (options.renderErrorOnChange && e.target.value && e.target.value.length > 0)
             applyValidator(e.target.name, e.target.value)
+
+        if (options.renderErrorOnBlur && blurredFields[e.target.name])
+            applyValidator(e.target.name, e.target.value)
     }
+
+
+    const handleBlur = (e: FocusEvent<HTMLInputElement>): void => {
+        setBlurredFields({ ...blurredFields, [e.target.name]: true });
+    }
+
 
     return { values, errors, setValues, setErrors, renderError, handleValidate, handleChange }
 }
