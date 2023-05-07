@@ -22,10 +22,11 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
     const [blurredFields, setBlurredFields] = useState<JsonType<boolean>>({});
 
 
-    const renderError = (name: string): JSX.Element => {
+    const renderError = (name: string): JSX.Element | null => {
         if (errors[name]) {
             return options.errorRender ? options.errorRender(name, errors[name]) : FormAuthorityError(name, errors[name]);
         }
+        return null;
     }
 
     const applyError = (fieldName: string, error: string): void => {
@@ -58,10 +59,10 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
 
     const applyValidatorRules = (fieldName: string, fieldValue: string, rules: string[]): string | null => {
 
-        let errorMessage: string | null = null;
+        let errorMessage: string | true = true;
         rules.forEach((rule) => {
             const [ruleName, ...ruleParams] = rule.split(':');
-            const validatorFn:RuleFunction = ValidationRules[ruleName as Rule];
+            const validatorFn: RuleFunction = ValidationRules[ruleName as Rule];
             if (!validatorFn) {
                 throw new Error(`Unknown validation rule: ${ruleName}`);
             }
@@ -74,7 +75,7 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
             }
         });
 
-        return errorMessage;
+        return (typeof errorMessage === 'string') ? errorMessage : null;
     }
 
     const handleValidate = (): void => {
