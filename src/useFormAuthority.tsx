@@ -1,6 +1,6 @@
 import { ChangeEvent, FocusEvent, useState } from 'react';
 import { FormAuthorityError } from './component/FormAuthorityError';
-import { ValidationRules } from './utils/validationRules';
+import { Rule, RuleFunction, ValidationRules } from './utils/validationRules';
 
 
 export type JsonType<T> = Record<string, T>;
@@ -28,13 +28,11 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
         }
     }
 
-    const applyError = (fieldName: string, error: string | null): void => {
-        if (error !== null && (options.renderErrorOnChange || blurredFields[fieldName])) {
-            setErrors((elements) => {
-                elements[fieldName] = error;
-                return elements;
-            })
-        }
+    const applyError = (fieldName: string, error: string): void => {
+        setErrors((elements) => {
+            elements[fieldName] = error;
+            return elements;
+        });
     }
 
 
@@ -45,13 +43,13 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
         if (typeof options.validator === 'function') {
             const error = options.validator(name, value);
             if (shouldRenderError(error)) {
-                applyError(name, error);
+                applyError(name, error as string);
             }
         } else {
             Object.entries(options.validator).forEach(([fieldName, fieldRules]) => {
                 const error = applyValidatorRules(fieldName, value as string, fieldRules.split('|'));
                 if (shouldRenderError(error)) {
-                    applyError(fieldName, error);
+                    applyError(fieldName, error as string);
                 }
             })
         }
@@ -63,7 +61,7 @@ const useFormAuthority = (options: FormAuthorityOptions) => {
         let errorMessage: string | null = null;
         rules.forEach((rule) => {
             const [ruleName, ...ruleParams] = rule.split(':');
-            const validatorFn = ValidationRules[ruleName];
+            const validatorFn:RuleFunction = ValidationRules[ruleName as Rule];
             if (!validatorFn) {
                 throw new Error(`Unknown validation rule: ${ruleName}`);
             }
