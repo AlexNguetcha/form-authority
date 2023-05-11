@@ -1,7 +1,7 @@
 {
   "name": "form-authority",
   "version": "1.0.0",
-  "description": "A hook to manage your react form !",
+  "description": "A lightweight hook to handle React forms validation !",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
