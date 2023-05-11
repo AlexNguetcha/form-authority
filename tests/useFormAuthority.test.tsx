@@ -14,7 +14,7 @@ describe('useFormAuthority', () => {
             },
             validator: {
                 name: 'required',
-                age: 'required|min:1|max:120'
+                age: 'required|min:10|max:120'
             },
             renderErrorOnChange: true
         };
@@ -91,6 +91,6 @@ describe('useFormAuthority', () => {
 
         const error = result.current.renderError('age');
 
-        expect(error.props['data-testid']).toBe('custom-error');
+        expect(error?.props['data-testid']).toBe('custom-error');
     });
 });
