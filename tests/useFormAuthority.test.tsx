@@ -20,7 +20,7 @@ describe('useFormAuthority', () => {
         };
     });
 
-/*     it('should update the form field values', () => {
+    it('should update the form field values', () => {
         const { result } = renderHook(() => useFormAuthority(options));
 
         act(() => {
@@ -65,10 +65,10 @@ describe('useFormAuthority', () => {
         });
 
         const error = result.current.renderError('name');
-
-        expect(error.props['className']).toBe('form-authority-error form-authority-error__name');
+        
+        expect(error?.props['className']).toBe('form-authority-error form-authority-error__name');
     })
- */
+
     it('should render a custom error message for a specific form field', () => {
         options.errorRender = (name, error) => (
             <div data-testid="custom-error">

@@ -1,7 +1,6 @@
 import { ChangeEvent, FocusEvent, useState } from 'react';
-import { FormAuthorityError } from './component/FormAuthorityError';
 import { Rule, RuleFunction, ValidationRules } from './utils/validationRules';
-
+import React from 'react';
 
 export type JsonType<T> = Record<string, T>;
 
@@ -15,16 +14,34 @@ export interface FormAuthorityOptions {
 }
 
 
-const useFormAuthority = (options: FormAuthorityOptions) => {
+const useFormAuthority = ({
+    initialValues,
+    validator,
+    errorRender,
+    renderErrorOnBlur,
+    renderErrorOnChange = true,
+    customErrorsMessages
+}: FormAuthorityOptions) => {
 
+    const options = {
+        initialValues,
+        validator,
+        errorRender,
+        renderErrorOnBlur,
+        renderErrorOnChange,
+        customErrorsMessages
+    };
     const [errors, setErrors] = useState<JsonType<string>>({});
     const [values, setValues] = useState<typeof options.initialValues>(options.initialValues);
     const [blurredFields, setBlurredFields] = useState<JsonType<boolean>>({});
 
+    const renderDefaultError = (name: string, message: string) => {
+        return <div style={{ color: 'red' }} className={`form-authority-error form-authority-error__${name}`}>{message}</div>
+    }
 
     const renderError = (name: string): JSX.Element | null => {
         if (errors[name]) {
-            return options.errorRender ? options.errorRender(name, errors[name]) : FormAuthorityError(name, errors[name]);
+            return options.errorRender ? options.errorRender(name, errors[name]) : renderDefaultError(name, errors[name]);
         }
         return null;
     }
