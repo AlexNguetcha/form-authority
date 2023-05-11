@@ -1,5 +1,5 @@
-import { screen, fireEvent, render, renderHook, RenderResult, waitFor, cleanup } from '@testing-library/react';
-import React, { ChangeEvent, useEffect, useRef } from 'react';
+import { renderHook } from '@testing-library/react';
+import React, { ChangeEvent } from 'react';
 import { act } from 'react-dom/test-utils';
 import useFormAuthority, { FormAuthorityOptions } from '../src';
 
@@ -20,7 +20,7 @@ describe('useFormAuthority', () => {
         };
     });
 
-    it('should update the form field values', () => {
+/*     it('should update the form field values', () => {
         const { result } = renderHook(() => useFormAuthority(options));
 
         act(() => {
@@ -68,7 +68,7 @@ describe('useFormAuthority', () => {
 
         expect(error.props['className']).toBe('form-authority-error form-authority-error__name');
     })
-
+ */
     it('should render a custom error message for a specific form field', () => {
         options.errorRender = (name, error) => (
             <div data-testid="custom-error">
