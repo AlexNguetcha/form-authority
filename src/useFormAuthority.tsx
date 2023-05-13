@@ -36,7 +36,11 @@ const useFormAuthority = ({
     const [blurredFields, setBlurredFields] = useState<JsonType<boolean>>({});
 
     const renderDefaultError = (name: string, message: string) => {
-        return <div style={{ color: 'red' }} className={`form-authority-error form-authority-error__${name}`}>{message}</div>
+        return <div
+            style={{ color: 'red' }}
+            className={`form-authority-error form-authority-error__${name}`}>
+            {message}
+        </div>
     }
 
     const renderError = (name: string): JSX.Element | null => {
